@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.*;
 
 import net.minecraft.block.Block;
 import net.minecraft.enchantment.Enchantment;
@@ -218,10 +219,10 @@ public class Treecapitator
                     {
                         long beginning = System.currentTimeMillis();
                         TCLog.debug("Proceeding to chop tree...");
-                        LinkedList<Coord> listFinal = new LinkedList<Coord>();
+                        ArrayList<Coord> listFinal = new ArrayList<Coord>();
                         TCLog.debug("Finding log blocks...");
                         long startTime = System.currentTimeMillis();
-                        LinkedList<Coord> logs = addLogs(world, new Coord(x, y, z));
+                        List<Coord> logs = addLogs(world, new Coord(x, y, z));
                         TCLog.debug("Log Discovery: %dms", System.currentTimeMillis() - startTime);
                         if (logs.isEmpty() && maxAllowed)
                             return;
@@ -358,15 +359,18 @@ public class Treecapitator
 
     private static Coord getTopLog(List<BlockID> logBlocks, World world, Coord pos, boolean shouldLog)
     {
-        LinkedList<Coord> topLogs = new LinkedList<Coord>();
+        ArrayList<Coord> topLogs = new ArrayList<Coord>(32);
         HashSet<Coord> processed = new HashSet<Coord>();
         Coord topLog = pos.clone();
 
         topLogs.add(getTopLogAtPos(logBlocks, world, topLog, false));
+        Iterator<Coord> iterator = topLogs.iterator();
 
-        while (topLogs.size() > 0)
+        try {
+        //while (topLogs.size() > 0)
+        while (iterator.hasNext())
         {
-            Coord nextLog = topLogs.pollFirst();
+            Coord nextLog = iterator.next();//topLogs.pollFirst();
             processed.add(nextLog);
 
             // if the new pos is higher than what we've seen so far, save it as the new top log
@@ -381,7 +385,7 @@ public class Treecapitator
                     if ((x != 0 || z != 0) && logBlocks.contains(new BlockID(world, nextLog.x + x, nextLog.y + 1, nextLog.z + z)))
                     {
                         newPos = nextLog.add(new Coord(x, 1, z));
-                        if (!topLogs.contains(newPos) && !processed.contains(newPos))
+                        if (!processed.contains(newPos) && !topLogs.contains(newPos))
                             topLogs.add(getTopLogAtPos(logBlocks, world, newPos, false));
                     }
 
@@ -393,12 +397,13 @@ public class Treecapitator
                         if ((x != 0 || z != 0) && logBlocks.contains(new BlockID(world, nextLog.x + x, nextLog.y, nextLog.z + z)))
                         {
                             newPos = nextLog.add(new Coord(x, 0, z));
-                            if (!topLogs.contains(newPos) && !processed.contains(newPos))
+                            if (!processed.contains(newPos) && !topLogs.contains(newPos))
                                 topLogs.add(getTopLogAtPos(logBlocks, world, newPos, false));
                         }
 
             }
         }
+        } catch (Exception e) {if (shouldLog) TCLog.debug("Warning: CME of func getTopLog loop");}
 
         if (shouldLog)
             TCLog.debug("Top Log: " + pos.x + ", " + pos.y + ", " + pos.z);
@@ -419,15 +424,18 @@ public class Treecapitator
 
     private static Coord getBottomLog(List<BlockID> logBlocks, World world, Coord pos, boolean shouldLog)
     {
-        LinkedList<Coord> bottomLogs = new LinkedList<Coord>();
+        ArrayList<Coord> bottomLogs = new ArrayList<Coord>(32);
         HashSet<Coord> processed = new HashSet<Coord>();
         Coord bottomLog = pos.clone();
 
         bottomLogs.add(getBottomLogAtPos(logBlocks, world, bottomLog, false));
+        Iterator<Coord> iterator =  bottomLogs.iterator();
 
-        while (bottomLogs.size() > 0)
+        try {
+        //while (bottomLogs.size() > 0)
+        while (iterator.hasNext())
         {
-            Coord nextLog = bottomLogs.pollFirst();
+            Coord nextLog = iterator.next();//bottomLogs.pollFirst();
             processed.add(nextLog);
 
             // if the new pos is lower than what we've seen so far, save it as the new bottom log
@@ -442,7 +450,7 @@ public class Treecapitator
                     if ((x != 0 || z != 0) && logBlocks.contains(new BlockID(world, nextLog.x + x, nextLog.y - 1, nextLog.z + z)))
                     {
                         newPos = new Coord(nextLog.x + x, nextLog.y - 1, nextLog.z + z);
-                        if (!bottomLogs.contains(newPos) && !processed.contains(newPos))
+                        if (!processed.contains(newPos) && !bottomLogs.contains(newPos))
                             bottomLogs.add(getBottomLogAtPos(logBlocks, world, newPos, false));
                     }
 
@@ -454,12 +462,13 @@ public class Treecapitator
                         if ((x != 0 || z != 0) && logBlocks.contains(new BlockID(world, nextLog.x + x, nextLog.y, nextLog.z + z)))
                         {
                             newPos = new Coord(nextLog.x + x, nextLog.y, nextLog.z + z);
-                            if (!bottomLogs.contains(newPos) && !processed.contains(newPos))
+                            if (!processed.contains(newPos) && !bottomLogs.contains(newPos))
                                 bottomLogs.add(getBottomLogAtPos(logBlocks, world, newPos, false));
                         }
 
             }
         }
+        } catch (Exception e) {if (shouldLog) TCLog.debug("Warning: CME of func getBottomLog loop");}
 
         if (shouldLog)
             TCLog.debug("Bottom Log: " + pos.x + ", " + pos.y + ", " + pos.z);
@@ -553,16 +562,20 @@ public class Treecapitator
         return isLeafBlock(treeDef.getLeafList(), blockID);
     }
 
-    private void destroyBlocks(World world, LinkedList<Coord> list)
+    private void destroyBlocks(World world, List<Coord> list)
     {
         destroyBlocksWithChance(world, list, 1.0F, false);
     }
 
     private void destroyBlocksWithChance(World world, List<Coord> list, float f, boolean canShear)
     {
-        while (list.size() > 0)
+        Iterator<Coord> iterator = list.iterator();
+        
+        try {
+        //while (list.size() > 0)
+        while (iterator.hasNext())
         {
-            Coord pos = list.remove(0);
+            Coord pos = iterator.next();//list.remove(0);
             Block block = world.getBlock(pos.x, pos.y, pos.z);
             if (!block.isAir(world, pos.x, pos.y, pos.z))
             {
@@ -633,6 +646,7 @@ public class Treecapitator
                 player.addExhaustion(0.025F);
             }
         }
+        } catch (Exception e) {TCLog.debug("Warning: CME of func destroyBlocksWithChance loop");}
     }
 
     private void addDrop(Block block, int metadata, Coord pos)
@@ -744,10 +758,10 @@ public class Treecapitator
         return TCSettings.allowMoreBlocksThanDamage || hasShearsInHotbar(player);
     }
 
-    private LinkedList<Coord> addLogs(World world, Coord pos)
+    private List<Coord> addLogs(World world, Coord pos)
     {
         int index = 0, lowY = pos.y, x, y, z;
-        LinkedList<Coord> list = new LinkedList<Coord>();
+        ArrayList<Coord> list = new ArrayList<Coord>();
         Coord newPos;
 
         list.add(pos);

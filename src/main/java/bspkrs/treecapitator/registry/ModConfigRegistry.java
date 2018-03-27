@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.*;
 
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
@@ -41,8 +42,8 @@ public class ModConfigRegistry
     {
         instance = this;
 
-        userModCfgs = new HashMap<String, ThirdPartyModConfig>();
-        imcModCfgs = new HashMap<String, ThirdPartyModConfig>();
+        userModCfgs = new org.eclipse.collections.impl.map.mutable.UnifiedMap<String, ThirdPartyModConfig>();
+        imcModCfgs = new org.eclipse.collections.impl.map.mutable.UnifiedMap<String, ThirdPartyModConfig>();
 
         initDefaultModConfigs();
     }
@@ -110,7 +111,7 @@ public class ModConfigRegistry
 
     public void applyPrioritizedModConfigs()
     {
-        List<ThirdPartyModConfig> finalList = new LinkedList<ThirdPartyModConfig>();
+        List<ThirdPartyModConfig> finalList = new ArrayList<ThirdPartyModConfig>();
 
         TCLog.info("Prioritizing User and IMC mod configs...");
         for (Entry<String, ThirdPartyModConfig> e : imcModCfgs.entrySet())
@@ -164,7 +165,7 @@ public class ModConfigRegistry
      */
     public void syncConfig(Configuration config)
     {
-        userModCfgs = new HashMap<String, ThirdPartyModConfig>();
+        userModCfgs = new org.eclipse.collections.impl.map.mutable.UnifiedMap<String, ThirdPartyModConfig>();
         /*
          * Get / Set 3rd Party Mod configs
          */

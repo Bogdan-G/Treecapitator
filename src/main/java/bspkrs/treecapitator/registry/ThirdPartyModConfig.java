@@ -30,7 +30,7 @@ public class ThirdPartyModConfig
 
     private boolean                     isChanged   = false;
     private static List<String>         orderedKeys = new ArrayList<String>();
-    private static Set<String>          validKeys   = new HashSet<String>();
+    private static Set<String>          validKeys   = new org.eclipse.collections.impl.set.mutable.UnifiedSet<String>();
 
     /*
      * This special constructor provides the default vanilla tree "mod"

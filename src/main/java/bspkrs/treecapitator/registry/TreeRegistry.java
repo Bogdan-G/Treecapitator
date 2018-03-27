@@ -54,10 +54,10 @@ public class TreeRegistry
 
     protected void initMapsAndLists()
     {
-        treeDefs = new HashMap<String, TreeDefinition>();
-        logToStringMap = new HashMap<BlockID, String>();
+        treeDefs = new org.eclipse.collections.impl.map.mutable.UnifiedMap<String, TreeDefinition>();
+        logToStringMap = new org.eclipse.collections.impl.map.mutable.UnifiedMap<BlockID, String>();
         masterDefinition = new TreeDefinition();
-        blocksBeingChopped = new HashSet<Coord>();
+        blocksBeingChopped = new org.eclipse.collections.impl.set.mutable.UnifiedSet<Coord>();
         readBlacklistFromDelimitedString(TCSettings.blockIDBlacklist);
     }
 
@@ -108,9 +108,9 @@ public class TreeRegistry
         if (newTD != null)
         {
             // list of trees that have at least one log blockID common with this tree
-            List<String> sharedLogTrees = new LinkedList<String>();
+            List<String> sharedLogTrees = new ArrayList<String>();
             // logToStringMap entries to add
-            Map<BlockID, String> toAdd = new HashMap<BlockID, String>();
+            Map<BlockID, String> toAdd = new org.eclipse.collections.impl.map.mutable.UnifiedMap<BlockID, String>();
 
             // Check each log to see if an existing definition already uses it
             for (BlockID blockID : newTD.getLogList())
@@ -168,7 +168,7 @@ public class TreeRegistry
             {
                 if (sharedLogTrees.size() == 1)
                 {
-                    String existingTree = sharedLogTrees.remove(0);
+                    String existingTree = sharedLogTrees.get(0);//sharedLogTrees.remove(0);
                     // append the new def to the existing tree
                     treeDefs.get(existingTree).appendWithSettings(newTD);
                     TCLog.debug("    Blank key tree appended with values: %s", newTD.toString());
@@ -347,7 +347,7 @@ public class TreeRegistry
     protected void readFromNBT(NBTTagCompound ntc)
     {
         // treeDefs;
-        treeDefs = new HashMap<String, TreeDefinition>();
+        treeDefs = new org.eclipse.collections.impl.map.mutable.UnifiedMap<String, TreeDefinition>();
         NBTTagList l = ntc.getTagList(Reference.TREE_DEFS, (byte) 10);
         for (int i = 0; i < l.tagCount(); i++)
         {
@@ -356,7 +356,7 @@ public class TreeRegistry
         }
 
         // logToStringMap;
-        logToStringMap = new HashMap<BlockID, String>();
+        logToStringMap = new org.eclipse.collections.impl.map.mutable.UnifiedMap<BlockID, String>();
         l = ntc.getTagList(Reference.LOG_STR_MAP, (byte) 8);
         for (int i = 0; i < l.tagCount(); i++)
         {
